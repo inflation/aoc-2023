@@ -1,12 +1,9 @@
-use color_eyre::{eyre::eyre, Result};
+use color_eyre::eyre::eyre;
 use regex::bytes::Regex;
 
-fn main() -> Result<()> {
-    color_eyre::install()?;
-
+#[aoc_macro::main("day1")]
+fn main() -> color_eyre::Result<u32> {
     let re = Regex::new(r"\d|one|two|three|four|five|six|seven|eight|nine")?;
-
-    let input = std::fs::read("input/day1.txt")?;
 
     let mut sum = 0;
     for line in input.split(|&c| c == b'\n') {
@@ -30,9 +27,7 @@ fn main() -> Result<()> {
         }
     }
 
-    println!("ANSWER: {sum}");
-
-    Ok(())
+    Ok(sum)
 }
 
 fn to_digit(word: &[u8]) -> Option<u8> {
