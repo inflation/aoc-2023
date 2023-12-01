@@ -1,38 +1,52 @@
-use std::{
-    fs::File,
-    io::{BufRead, BufReader},
-};
-
-use color_eyre::Result;
+use color_eyre::{eyre::eyre, Result};
+use regex::bytes::Regex;
 
 fn main() -> Result<()> {
     color_eyre::install()?;
 
-    let input = BufReader::new(File::open("input/day1.txt")?);
+    let re = Regex::new(r"\d|one|two|three|four|five|six|seven|eight|nine")?;
+
+    let input = std::fs::read("input/day1.txt")?;
 
     let mut sum = 0;
-    for line in input.lines() {
-        let line = line?;
-
+    for line in input.split(|&c| c == b'\n') {
         let mut first = None;
         let mut last = None;
-        for c in line.chars() {
-            if c.is_ascii_digit() {
+
+        for m in re.find_iter(line) {
+            if let Some(d) = to_digit(m.as_bytes()) {
                 if first.is_none() {
-                    first = Some(c);
+                    first = Some(d);
                 }
-                last = Some(c);
+
+                last = Some(d);
             }
         }
 
-        if let Some(f) = first.and_then(|c| c.to_digit(10)) {
-            if let Some(l) = last.and_then(|c| c.to_digit(10)) {
-                sum += f * 10 + l;
-            }
+        if let (Some(first), Some(last)) = (first, last) {
+            sum += u32::from(first * 10 + last);
+        } else {
+            return Err(eyre!("Could not find digits in line: {line:?}"));
         }
     }
 
     println!("ANSWER: {sum}");
 
     Ok(())
+}
+
+fn to_digit(word: &[u8]) -> Option<u8> {
+    Some(match word {
+        b"one" => 1,
+        b"two" => 2,
+        b"three" => 3,
+        b"four" => 4,
+        b"five" => 5,
+        b"six" => 6,
+        b"seven" => 7,
+        b"eight" => 8,
+        b"nine" => 9,
+        m if !m.is_empty() => m[0] - b'0',
+        _ => return None,
+    })
 }
