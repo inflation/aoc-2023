@@ -1,6 +1,6 @@
 use winnow::{
     ascii::{alpha1, digit1},
-    combinator::{delimited, preceded, repeat, separated, terminated},
+    combinator::{delimited, preceded, separated},
     token::take_until1,
     PResult, Parser,
 };
@@ -10,6 +10,13 @@ struct Set {
     red: u32,
     blue: u32,
     green: u32,
+}
+
+#[derive(Debug, Default)]
+struct Game {
+    red: Vec<u32>,
+    blue: Vec<u32>,
+    green: Vec<u32>,
 }
 
 fn parse_ball<'i>(input: &mut &'i [u8]) -> PResult<(&'i [u8], u32)> {
@@ -37,20 +44,25 @@ fn parse_id(input: &mut &[u8]) -> PResult<u32> {
     Ok(atoi(id))
 }
 
-fn parse_line(input: &mut &[u8]) -> PResult<Vec<Set>> {
-    let (_id, game) = terminated(
-        (
-            delimited(b"Game ", parse_id, b": "),
-            separated(1.., parse_set, "; "),
-        ),
-        "\n",
+fn parse_line(input: &mut &[u8]) -> PResult<Game> {
+    let (_id, sets): (u32, Vec<Set>) = (
+        delimited(b"Game ", parse_id, b": "),
+        separated(1.., parse_set, "; "),
     )
-    .parse_next(input)?;
+        .parse_next(input)?;
+
+    let mut game = Game::default();
+    for set in sets {
+        game.red.push(set.red);
+        game.blue.push(set.blue);
+        game.green.push(set.green);
+    }
+
     Ok(game)
 }
 
-fn parse_input(input: &mut &[u8]) -> PResult<Vec<Vec<Set>>> {
-    let res = repeat(0.., parse_line).parse_next(input)?;
+fn parse_input(input: &mut &[u8]) -> PResult<Vec<Game>> {
+    let res = separated(1.., parse_line, "\n").parse_next(input)?;
     Ok(res)
 }
 
@@ -60,17 +72,11 @@ fn main() -> color_eyre::Result<u32> {
     let res = parse_input(remain).unwrap();
 
     let mut sum = 0;
-    for (i, sets) in res.iter().enumerate() {
-        let i = i + 1;
-        if sets
-            .iter()
-            .all(|set| set.red <= 12 && set.green <= 13 && set.blue <= 14)
-        {
-            // println!("Game {i} is possible: {sets:?}");
-            sum += i;
-        } else {
-            println!("Game {i} is impossible: {sets:?}");
-        }
+    for game in res {
+        let power = game.red.iter().max().unwrap()
+            * game.blue.iter().max().unwrap()
+            * game.green.iter().max().unwrap();
+        sum += power;
     }
 
     Ok(sum)
