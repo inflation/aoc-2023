@@ -38,6 +38,7 @@ name = "aoc-2023"
 version = "0.1.0"
 dependencies = [
  "aoc-macro",
+ "atoi_simd",
  "color-eyre",
  "regex",
  "winnow",
@@ -52,6 +53,12 @@ dependencies = [
  "quote",
  "syn",
 ]
+
+[[package]]
+name = "atoi_simd"
+version = "0.15.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ccfc14f5c3e34de57539a7ba9c18ecde3d9bbde48d232ea1da3e468adb307fd0"
 
 [[package]]
 name = "backtrace"

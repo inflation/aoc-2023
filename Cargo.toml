@@ -13,3 +13,4 @@ color-eyre = "0.6.2"
 regex = "1.10.2"
 aoc-macro = { path = "../aoc/aoc-macro" }
 winnow = { version = "0.5.19", features = ["simd"] }
+atoi_simd = "0.15.5"

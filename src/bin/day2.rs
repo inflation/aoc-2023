@@ -1,16 +1,9 @@
+use color_eyre::eyre::eyre;
 use winnow::{
     ascii::{alpha1, digit1},
     combinator::{delimited, preceded, separated},
-    token::take_until1,
     PResult, Parser,
 };
-
-#[derive(Debug, Default)]
-struct Set {
-    red: u32,
-    blue: u32,
-    green: u32,
-}
 
 #[derive(Debug, Default)]
 struct Game {
@@ -20,42 +13,42 @@ struct Game {
 }
 
 fn parse_ball<'i>(input: &mut &'i [u8]) -> PResult<(&'i [u8], u32)> {
-    let num = digit1.parse_next(input)?;
+    let num = match atoi_simd::parse_pos(digit1.parse_next(input)?) {
+        Ok(num) => num,
+        Err(e) => {
+            panic!("Failed to parse number: {e}")
+        }
+    };
     let ball = preceded(" ", alpha1).parse_next(input)?;
-    Ok((ball, atoi(num)))
+    Ok((ball, num))
 }
 
-fn parse_set(input: &mut &[u8]) -> PResult<Set> {
+fn parse_set(input: &mut &[u8]) -> PResult<(u32, u32, u32)> {
     let balls: Vec<(&[u8], u32)> = separated(1.., parse_ball, ", ").parse_next(input)?;
-    let mut set = Set::default();
+    let mut set = (0, 0, 0);
     for (ball, num) in balls {
         match ball {
-            b"red" => set.red = num,
-            b"blue" => set.blue = num,
-            b"green" => set.green = num,
+            b"red" => set.0 = num,
+            b"blue" => set.1 = num,
+            b"green" => set.2 = num,
             _ => panic!("Unknown ball color: {}", String::from_utf8_lossy(ball)),
         }
     }
     Ok(set)
 }
 
-fn parse_id(input: &mut &[u8]) -> PResult<u32> {
-    let id = take_until1(":").parse_next(input)?;
-    Ok(atoi(id))
-}
-
 fn parse_line(input: &mut &[u8]) -> PResult<Game> {
-    let (_id, sets): (u32, Vec<Set>) = (
-        delimited(b"Game ", parse_id, b": "),
+    let sets: Vec<(u32, u32, u32)> = preceded(
+        delimited(b"Game ", digit1, b": "),
         separated(1.., parse_set, "; "),
     )
-        .parse_next(input)?;
+    .parse_next(input)?;
 
     let mut game = Game::default();
-    for set in sets {
-        game.red.push(set.red);
-        game.blue.push(set.blue);
-        game.green.push(set.green);
+    for (red, blue, green) in sets {
+        game.red.push(red);
+        game.blue.push(blue);
+        game.green.push(green);
     }
 
     Ok(game)
@@ -69,7 +62,7 @@ fn parse_input(input: &mut &[u8]) -> PResult<Vec<Game>> {
 #[aoc_macro::main("day2")]
 fn main() -> color_eyre::Result<u32> {
     let remain = &mut input.as_ref();
-    let res = parse_input(remain).unwrap();
+    let res = parse_input.parse(remain).map_err(|e| eyre!("{e}"))?;
 
     let mut sum = 0;
     for game in res {
@@ -80,10 +73,4 @@ fn main() -> color_eyre::Result<u32> {
     }
 
     Ok(sum)
-}
-
-fn atoi(input: &[u8]) -> u32 {
-    input
-        .iter()
-        .fold(0, |acc, x| acc * 10 + u32::from(x - b'0'))
 }
