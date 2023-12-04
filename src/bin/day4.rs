@@ -50,13 +50,13 @@ fn main() -> color_eyre::Result<u32> {
         )
     })?;
 
-    let mut sum = 0;
-    for card in cards {
+    let mut coefficient: Vec<u32> = cards.iter().map(|_| 1).collect();
+    for (i, card) in cards.into_iter().enumerate() {
         let n = card.win.intersection(&card.num).count();
-        if n > 0 {
-            sum += 2_u32.pow(u32::try_from(n - 1).unwrap());
+        for j in i + 1..i + 1 + n {
+            coefficient[j] += coefficient[i];
         }
     }
 
-    Ok(sum)
+    Ok(coefficient.into_iter().sum::<u32>())
 }
