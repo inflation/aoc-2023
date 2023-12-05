@@ -1,19 +1,6 @@
-#[derive(Debug)]
-pub struct AdHocError {
-    pub message: String,
+#[must_use]
+pub fn atoi(input: &[u8]) -> u32 {
+    input
+        .iter()
+        .fold(0, |acc, &c| acc * 10 + u32::from(c - b'0'))
 }
-
-impl AdHocError {
-    #[must_use]
-    pub fn new(message: String) -> Self {
-        Self { message }
-    }
-}
-
-impl std::fmt::Display for AdHocError {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "{}", self.message)
-    }
-}
-
-impl std::error::Error for AdHocError {}

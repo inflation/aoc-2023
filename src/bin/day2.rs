@@ -13,12 +13,7 @@ struct Game {
 }
 
 fn parse_ball<'i>(input: &mut &'i [u8]) -> PResult<(&'i [u8], u32)> {
-    let num = match atoi_simd::parse_pos(digit1.parse_next(input)?) {
-        Ok(num) => num,
-        Err(e) => {
-            panic!("Failed to parse number: {e}")
-        }
-    };
+    let num = digit1.parse_to().parse_next(input)?;
     let ball = preceded(" ", alpha1).parse_next(input)?;
     Ok((ball, num))
 }

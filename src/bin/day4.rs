@@ -54,6 +54,9 @@ fn main() -> color_eyre::Result<u32> {
     for (i, card) in cards.into_iter().enumerate() {
         let n = card.win.intersection(&card.num).count();
         for j in i + 1..i + 1 + n {
+            if j >= coefficient.len() {
+                break;
+            }
             coefficient[j] += coefficient[i];
         }
     }

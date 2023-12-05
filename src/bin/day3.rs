@@ -1,3 +1,4 @@
+use aoc_2023::atoi;
 use color_eyre::eyre::eyre;
 use log::info;
 
@@ -25,34 +26,32 @@ fn main() -> color_eyre::Result<u32> {
             if gear > 0 && line[gear - 1].is_ascii_digit() {
                 info!("{}: left: {gear}", i + 1,);
                 count += 1;
-                let part: u32 = atoi_simd::parse(
+                let part = atoi(
                     parts[i]
                         .iter()
                         .find(|&m| m.end() == gear)
                         .ok_or_else(|| eyre!("Parts not found: {} at line {}", gear - 1, i + 1))?
                         .as_bytes(),
-                )
-                .map_err(|e| eyre!("{e}"))?;
+                );
                 ratio *= part;
             }
             if gear < n - 1 && line[gear + 1].is_ascii_digit() {
                 info!("{}: right: {gear}", i + 1,);
                 count += 1;
-                let part: u32 = atoi_simd::parse(
+                let part = atoi(
                     parts[i]
                         .iter()
                         .find(|&m| m.start() == gear + 1)
                         .ok_or_else(|| eyre!("Parts not found: {} at line {}", gear + 1, i + 1))?
                         .as_bytes(),
-                )
-                .map_err(|e| eyre!("{e}"))?;
+                );
                 ratio *= part;
             }
             if i > 0 && mat[i - 1][gear].is_ascii_digit() {
                 if let Some(part) = parts[i - 1].iter().find(|&m| m.range().contains(&gear)) {
                     info!("{}: up: {gear}", i + 1);
                     count += 1;
-                    let part: u32 = atoi_simd::parse(part.as_bytes()).map_err(|e| eyre!("{e}"))?;
+                    let part = atoi(part.as_bytes());
                     ratio *= part;
                 } else {
                     info!("Part not found: up");
@@ -62,7 +61,7 @@ fn main() -> color_eyre::Result<u32> {
                 if let Some(part) = parts[i + 1].iter().find(|&m| m.range().contains(&gear)) {
                     info!("{}: down: {gear}", i + 1,);
                     count += 1;
-                    let part: u32 = atoi_simd::parse(part.as_bytes()).map_err(|e| eyre!("{e}"))?;
+                    let part = atoi(part.as_bytes());
                     ratio *= part;
                 } else {
                     info!("Part not found: down");
@@ -72,7 +71,7 @@ fn main() -> color_eyre::Result<u32> {
                 if let Some(part) = parts[i - 1].iter().find(|&m| m.end() == gear) {
                     info!("{}: up-left: {gear}", i + 1,);
                     count += 1;
-                    let part: u32 = atoi_simd::parse(part.as_bytes()).map_err(|e| eyre!("{e}"))?;
+                    let part = atoi(part.as_bytes());
                     ratio *= part;
                 } else {
                     info!("Part not found: up-left");
@@ -82,7 +81,7 @@ fn main() -> color_eyre::Result<u32> {
                 if let Some(part) = parts[i - 1].iter().find(|&m| m.start() == gear + 1) {
                     info!("{}: up-right: {gear}", i + 1,);
                     count += 1;
-                    let part: u32 = atoi_simd::parse(part.as_bytes()).map_err(|e| eyre!("{e}"))?;
+                    let part = atoi(part.as_bytes());
                     ratio *= part;
                 } else {
                     info!("Part not found: up-right");
@@ -92,7 +91,7 @@ fn main() -> color_eyre::Result<u32> {
                 if let Some(part) = parts[i + 1].iter().find(|&m| m.end() == gear) {
                     info!("{}: down-left: {gear}", i + 1,);
                     count += 1;
-                    let part: u32 = atoi_simd::parse(part.as_bytes()).map_err(|e| eyre!("{e}"))?;
+                    let part: u32 = atoi(part.as_bytes());
                     ratio *= part;
                 } else {
                     info!("Part not found: down-left");
@@ -102,7 +101,7 @@ fn main() -> color_eyre::Result<u32> {
                 if let Some(part) = parts[i + 1].iter().find(|&m| m.start() == gear + 1) {
                     info!("{}: down-right: {gear}", i + 1,);
                     count += 1;
-                    let part: u32 = atoi_simd::parse(part.as_bytes()).map_err(|e| eyre!("{e}"))?;
+                    let part: u32 = atoi(part.as_bytes());
                     ratio *= part;
                 } else {
                     info!("Part not found: down-right");

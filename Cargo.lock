@@ -31,7 +31,6 @@ name = "aoc-2023"
 version = "0.1.0"
 dependencies = [
  "aoc-macro",
- "atoi_simd",
  "color-eyre",
  "env_logger",
  "log",
@@ -47,12 +46,6 @@ dependencies = [
  "quote",
  "syn",
 ]
-
-[[package]]
-name = "atoi_simd"
-version = "0.15.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ccfc14f5c3e34de57539a7ba9c18ecde3d9bbde48d232ea1da3e468adb307fd0"
 
 [[package]]
 name = "backtrace"
@@ -574,9 +567,9 @@ checksum = "dff9641d1cd4be8d1a070daf9e3773c5f67e78b4d9d42263020c057706765c04"
 
 [[package]]
 name = "winnow"
-version = "0.5.20"
+version = "0.5.24"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "05c8ac106f5ae4cb3786c9ef22f066b20646795d0262df031bf04fd68630cd39"
+checksum = "0383266b19108dfc6314a56047aa545a1b4d1be60e799b4dbdd407b56402704b"
 dependencies = [
  "memchr",
 ]
