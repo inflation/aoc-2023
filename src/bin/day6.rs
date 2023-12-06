@@ -1,40 +1,43 @@
 use color_eyre::eyre::eyre;
 use winnow::{
-    ascii::{digit1, space0, space1},
-    combinator::{preceded, separated, separated_pair},
+    ascii::space0,
+    combinator::{preceded, separated_pair},
+    token::take_till,
     BStr, PResult, Parser,
 };
 
 #[derive(Debug)]
 struct Race {
-    time: u32,
-    dist: u32,
+    time: u64,
+    dist: u64,
 }
 
-fn parse_num(input: &mut &BStr) -> PResult<u32> {
-    digit1.parse_to().parse_next(input)
+fn parse_num(input: &mut &BStr) -> PResult<u64> {
+    take_till(1.., |c: u8| !(c.is_ascii_digit() || c == b' '))
+        .map(|s: &[u8]| {
+            s.iter()
+                .filter(|c| c.is_ascii_digit())
+                .fold(0, |acc, d| acc * 10 + u64::from(*d - b'0'))
+        })
+        .parse_next(input)
 }
 
-fn parse_times(input: &mut &BStr) -> PResult<Vec<u32>> {
-    preceded((b"Time:", space0), separated(1.., parse_num, space1)).parse_next(input)
+fn parse_times(input: &mut &BStr) -> PResult<u64> {
+    preceded((b"Time:", space0), parse_num).parse_next(input)
 }
 
-fn parse_distances(input: &mut &BStr) -> PResult<Vec<u32>> {
-    preceded((b"Distance:", space0), separated(1.., parse_num, space1)).parse_next(input)
+fn parse_distances(input: &mut &BStr) -> PResult<u64> {
+    preceded((b"Distance:", space0), parse_num).parse_next(input)
 }
 
-fn parse_input(input: &mut &BStr) -> PResult<Vec<Race>> {
+fn parse_input(input: &mut &BStr) -> PResult<Race> {
     let (time, dist) = separated_pair(parse_times, "\n", parse_distances).parse_next(input)?;
-    Ok(time
-        .into_iter()
-        .zip(dist)
-        .map(|(time, dist)| Race { time, dist })
-        .collect())
+    Ok(Race { time, dist })
 }
 
 #[aoc_macro::main("day6")]
-fn main() -> color_eyre::Result<u32> {
-    let races = parse_input.parse((*input).into()).map_err(|e| {
+fn main() -> color_eyre::Result<u64> {
+    let Race { time, dist } = parse_input.parse((*input).into()).map_err(|e| {
         eyre!(
             "cause: {:?}, remain: {:?}, offset: {}",
             e.inner(),
@@ -44,16 +47,14 @@ fn main() -> color_eyre::Result<u32> {
     })?;
 
     let mut res = 1;
-    for race in races {
-        let mut count = 0;
-        for t in 1..race.time {
-            let d = t * (race.time - t);
-            if d > race.dist {
-                count += 1;
-            }
+    let mut count = 0;
+    for t in 1..time {
+        let d = t * (time - t);
+        if d > dist {
+            count += 1;
         }
-        res *= count;
     }
+    res *= count;
 
     Ok(res)
 }
