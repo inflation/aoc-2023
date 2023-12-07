@@ -38,30 +38,32 @@ fn main() -> color_eyre::Result<u32> {
 
 fn score_card(card: u8) -> u32 {
     match card {
-        b'A' => 0xE,
-        b'K' => 0xD,
-        b'Q' => 0xC,
-        b'J' => 0xB,
+        b'A' => 0xD,
+        b'K' => 0xC,
+        b'Q' => 0xB,
         b'T' => 0xA,
         x if x.is_ascii_digit() => u32::from(x - b'0'),
+        b'J' => 1,
         _ => panic!("Invalid card"),
     }
 }
 
 fn score(hand: &BStr) -> (u8, u32) {
-    let freq = hand.iter().fold(HashMap::new(), |mut acc, x| {
+    let freq: HashMap<u8, u8> = hand.iter().fold(HashMap::new(), |mut acc, x| {
         *acc.entry(*x).or_default() += 1;
         acc
     });
 
-    let mut v: Vec<(u8, u32)> = freq.into_iter().collect();
+    let mut v: Vec<(u8, u8)> = freq.iter().map(|(k, v)| (*k, *v)).collect();
     v.sort_unstable_by_key(|(_, v)| std::cmp::Reverse(*v));
     let score = hand.iter().fold(0, |acc, x| acc * 16 + score_card(*x));
 
-    match v.len() {
+    let res = match v.len() {
         1 => (6, score),
         2 => {
-            if v[0].1 == 4 {
+            if freq.get(&b'J').is_some() {
+                (6, score)
+            } else if v[0].1 == 4 {
                 (5, score)
             } else {
                 (4, score)
@@ -69,13 +71,36 @@ fn score(hand: &BStr) -> (u8, u32) {
         }
         3 => {
             if v[0].1 == 3 {
-                (3, score)
+                if freq.get(&b'J').is_some() {
+                    (5, score)
+                } else {
+                    (3, score)
+                }
+            } else if let Some(j) = freq.get(&b'J') {
+                if *j == 2 {
+                    (5, score)
+                } else {
+                    (4, score)
+                }
             } else {
                 (2, score)
             }
         }
-        4 => (1, score),
-        5 => (0, score),
+        4 => {
+            if freq.get(&b'J').is_some() {
+                (3, score)
+            } else {
+                (1, score)
+            }
+        }
+        5 => {
+            if freq.get(&b'J').is_some() {
+                (1, score)
+            } else {
+                (0, score)
+            }
+        }
         _ => panic!("Invalid hand"),
-    }
+    };
+    res
 }
