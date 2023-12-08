@@ -54,10 +54,9 @@ fn parse_input(input: &mut &[u8]) -> PResult<Vec<Game>> {
     Ok(res)
 }
 
-#[aoc_macro::main("day2")]
-fn main() -> color_eyre::Result<u32> {
-    let remain = &mut input.as_ref();
-    let res = parse_input.parse(remain).map_err(|e| eyre!("{e}"))?;
+fn main() -> color_eyre::Result<()> {
+    let input = std::fs::read(std::env::var("INPUT")?)?;
+    let res = parse_input.parse(&input).map_err(|e| eyre!("{e}"))?;
 
     let mut sum = 0;
     for game in res {
@@ -67,5 +66,6 @@ fn main() -> color_eyre::Result<u32> {
         sum += power;
     }
 
-    Ok(sum)
+    println!("ANSWER: {sum}");
+    Ok(())
 }

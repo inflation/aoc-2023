@@ -1,11 +1,8 @@
 {
 	"folders": [
 		{
-			"path": "."
-		},
-		{
-			"path": "../aoc"
-		}
+      "path": "."
+    }
 	],
 	"settings": {}
 }

@@ -31,8 +31,9 @@ fn parse_input<'s>(input: &mut &'s BStr) -> PResult<(&'s [u8], Map)> {
     separated_pair(alpha1, "\n\n", parse_map).parse_next(input)
 }
 
-#[aoc_macro::main("day8")]
-fn main() -> color_eyre::Result<u32> {
+fn main() -> color_eyre::Result<()> {
+    let input = std::fs::read(std::env::var("INPUT")?)?;
+
     let (inst, map) = parse_input.parse((*input).into()).map_err(|e| {
         eyre!(
             "cause: {:?}, remain: {:?}, offset: {}",
@@ -75,5 +76,6 @@ fn main() -> color_eyre::Result<u32> {
         .reduce(num::integer::lcm)
         .unwrap();
 
-    Ok(steps)
+    println!("ANSWER: {steps}");
+    Ok(())
 }

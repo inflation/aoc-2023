@@ -1,8 +1,8 @@
 use color_eyre::eyre::eyre;
 use regex::bytes::Regex;
 
-#[aoc_macro::main("day1")]
-fn main() -> color_eyre::Result<u32> {
+fn main() -> color_eyre::Result<()> {
+    let input = std::fs::read(std::env::var("INPUT")?)?;
     let re = Regex::new(r"\d|one|two|three|four|five|six|seven|eight|nine")?;
 
     let mut sum = 0;
@@ -27,7 +27,8 @@ fn main() -> color_eyre::Result<u32> {
         }
     }
 
-    Ok(sum)
+    println!("ANSWER: {sum}");
+    Ok(())
 }
 
 fn to_digit(word: &[u8]) -> Option<u8> {

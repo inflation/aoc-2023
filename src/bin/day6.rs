@@ -35,8 +35,9 @@ fn parse_input(input: &mut &BStr) -> PResult<Race> {
     Ok(Race { time, dist })
 }
 
-#[aoc_macro::main("day6")]
-fn main() -> color_eyre::Result<u64> {
+fn main() -> color_eyre::Result<()> {
+    let input = std::fs::read(std::env::var("INPUT")?)?;
+
     let Race { time, dist } = parse_input.parse((*input).into()).map_err(|e| {
         eyre!(
             "cause: {:?}, remain: {:?}, offset: {}",
@@ -56,5 +57,6 @@ fn main() -> color_eyre::Result<u64> {
     }
     res *= count;
 
-    Ok(res)
+    println!("ANSWER: {res}");
+    Ok(())
 }

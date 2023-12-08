@@ -39,8 +39,9 @@ fn parse_input<'s>(input: &mut &'s [u8]) -> PResult<Vec<Card>, ContextError<&'s 
     separated(1.., parse_card, b"\n").parse_next(input)
 }
 
-#[aoc_macro::main("day4")]
-fn main() -> color_eyre::Result<u32> {
+fn main() -> color_eyre::Result<()> {
+    let input = std::fs::read(std::env::var("INPUT")?)?;
+
     let cards = parse_input.parse(input.as_ref()).map_err(|e| {
         eyre!(
             "cause: {:?}, remain: {:?}, offset: {}",
@@ -61,5 +62,8 @@ fn main() -> color_eyre::Result<u32> {
         }
     }
 
-    Ok(coefficient.into_iter().sum::<u32>())
+    let sum: u32 = coefficient.into_iter().sum();
+
+    println!("ANSWER: {sum}");
+    Ok(())
 }

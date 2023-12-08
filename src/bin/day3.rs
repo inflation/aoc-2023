@@ -1,9 +1,11 @@
 use aoc_2023::atoi;
 use color_eyre::eyre::eyre;
 use log::info;
+use regex::bytes::Regex;
 
-#[aoc_macro::main("day3")]
-fn main() -> color_eyre::Result<u32> {
+fn main() -> color_eyre::Result<()> {
+    let input = std::fs::read(std::env::var("INPUT")?)?;
+
     let re_star = regex::bytes::Regex::new(r"\*")?;
     let re_num = regex::bytes::Regex::new(r"\d+")?;
 
@@ -16,6 +18,19 @@ fn main() -> color_eyre::Result<u32> {
         .map(|line| re_num.find_iter(line).collect())
         .collect();
 
+    let sum = find_gear(&mat, &re_star, &parts, n, m)?;
+
+    println!("ANSWER: {sum}");
+    Ok(())
+}
+
+fn find_gear(
+    mat: &[&[u8]],
+    re_star: &Regex,
+    parts: &[Vec<regex::bytes::Match<'_>>],
+    n: usize,
+    m: usize,
+) -> Result<u32, color_eyre::eyre::Error> {
     let mut sum = 0;
     for (i, line) in mat.iter().enumerate() {
         for gear in re_star.find_iter(line) {
@@ -113,6 +128,5 @@ fn main() -> color_eyre::Result<u32> {
             }
         }
     }
-
     Ok(sum)
 }

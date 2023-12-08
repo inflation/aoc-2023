@@ -50,8 +50,9 @@ fn parse_input(input: &mut &BStr) -> PResult<Almanac> {
     Ok(Almanac { seeds, maps })
 }
 
-#[aoc_macro::main("day5")]
-fn main() -> color_eyre::Result<u64> {
+fn main() -> color_eyre::Result<()> {
+    let input = std::fs::read(std::env::var("INPUT")?)?;
+
     let Almanac { seeds, maps } = parse_input.parse((*input).into()).map_err(|e| {
         eyre!(
             "cause: {:?}, remain: {:?}, offset: {}",
@@ -75,7 +76,8 @@ fn main() -> color_eyre::Result<u64> {
         }
     }
 
-    Ok(min)
+    println!("ANSWER: {min}");
+    Ok(())
 }
 
 fn apply_range(mut r: Vec<(u64, u64)>, map: &Map) -> Vec<(u64, u64)> {

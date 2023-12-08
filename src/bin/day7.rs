@@ -17,8 +17,9 @@ fn parse_input<'s>(input: &mut &'s BStr) -> PResult<Vec<(&'s BStr, u32)>> {
     separated(1.., parse_round, newline).parse_next(input)
 }
 
-#[aoc_macro::main("day7")]
-fn main() -> color_eyre::Result<u32> {
+fn main() -> color_eyre::Result<()> {
+    let input = std::fs::read(std::env::var("INPUT")?)?;
+
     let mut rounds: Vec<(&BStr, u32)> = parse_input.parse((*input).into()).map_err(|e| {
         eyre!(
             "cause: {:?}, remain: {:?}, offset: {}",
@@ -33,7 +34,8 @@ fn main() -> color_eyre::Result<u32> {
         acc + (u32::try_from(i).unwrap() + 1) * v
     });
 
-    Ok(res)
+    println!("ANSWER: {res}");
+    Ok(())
 }
 
 fn score_card(card: u8) -> u32 {
