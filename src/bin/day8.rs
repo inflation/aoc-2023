@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use color_eyre::eyre::eyre;
 use winnow::{
-    ascii::alpha1,
+    ascii::{alpha1, alphanumeric1},
     combinator::{delimited, separated, separated_pair},
     BStr, PResult, Parser,
 };
@@ -11,7 +11,7 @@ type Node = [u8; 3];
 type Map = HashMap<Node, (Node, Node)>;
 
 fn parse_node(input: &mut &BStr) -> PResult<Node> {
-    alpha1.try_map(Node::try_from).parse_next(input)
+    alphanumeric1.try_map(Node::try_from).parse_next(input)
 }
 
 fn parse_map(input: &mut &BStr) -> PResult<Map> {
@@ -42,32 +42,38 @@ fn main() -> color_eyre::Result<u32> {
         )
     })?;
 
-    let mut node = map.get(b"AAA").ok_or(eyre!("no starting node"))?;
-    let mut steps = 0;
-    for i in inst.iter().cycle() {
-        let (left, right) = node;
-        steps += 1;
-
-        match i {
-            b'R' => {
-                if right == b"ZZZ" {
-                    break;
+    let mut nodes: Vec<(&Node, &(Node, Node))> = map.iter().filter(|(n, _)| n[2] == b'A').collect();
+    let steps = nodes
+        .iter_mut()
+        .map(|m| {
+            for (steps, i) in inst.iter().cycle().enumerate() {
+                if m.0[2] == b'Z' {
+                    return steps;
                 }
-                node = map
-                    .get(right)
-                    .ok_or(eyre!("no right node: {}", String::from_utf8_lossy(right)))?;
-            }
-            b'L' => {
-                if left == b"ZZZ" {
-                    break;
+                match i {
+                    b'R' => {
+                        *m = (
+                            &m.1 .1,
+                            map.get(&m.1 .1).unwrap_or_else(|| {
+                                panic!("no right node: {}", String::from_utf8_lossy(&m.1 .1))
+                            }),
+                        );
+                    }
+                    b'L' => {
+                        *m = (
+                            &m.1 .0,
+                            map.get(&m.1 .0).unwrap_or_else(|| {
+                                panic!("no left node: {}", String::from_utf8_lossy(&m.1 .0))
+                            }),
+                        );
+                    }
+                    _ => panic!("unknown instruction: {}", String::from_utf8_lossy(&[*i])),
                 }
-                node = map
-                    .get(left)
-                    .ok_or(eyre!("no left node: {}", String::from_utf8_lossy(left)))?;
             }
-            _ => panic!("unknown instruction: {}", String::from_utf8_lossy(&[*i])),
-        }
-    }
+            unreachable!("no Z node found")
+        })
+        .reduce(num::integer::lcm)
+        .unwrap();
 
     Ok(steps)
 }
