@@ -11,7 +11,7 @@ pedantic = "warn"
 [dependencies]
 color-eyre = "0.6.2"
 regex = "1.10.2"
-winnow = { version = "0.5.24", features = ["simd"] }
+winnow = { version = "0.5.26", features = ["simd"] }
 log = { version = "0.4.20", features = ["std"] }
 env_logger = "0.10.1"
 rayon = "1.8.0"
